@@ -1,0 +1,11 @@
+{{- if not .Values.tenant }}
+{{ fail ".Values.tenant is required" }}
+{{- end }}
+apiVersion: core.openfeature.dev/v1beta1
+kind: FeatureFlag
+metadata:
+  name: {{ .Values.tenant }}-flags
+spec:
+  flagSpec:
+    flags:
+      {{- toYaml .Values.featureFlag.flags | nindent 6 }}

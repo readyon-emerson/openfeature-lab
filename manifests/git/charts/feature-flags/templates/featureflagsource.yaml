@@ -1,0 +1,8 @@
+apiVersion: core.openfeature.dev/v1beta1
+kind: FeatureFlagSource
+metadata:
+  name: {{ .Values.tenant }}-source
+spec:
+  sources:
+    - source: {{ .Release.Namespace }}/{{ .Values.tenant }}-flags
+      provider: kubernetes

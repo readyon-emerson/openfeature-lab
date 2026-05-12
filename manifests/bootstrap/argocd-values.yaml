@@ -1,0 +1,31 @@
+# Minimal argo-cd install for the lab. No public ingress, no SSO, no policies.
+# Port-forward svc/argocd-server:443 to reach the UI.
+
+server:
+  service:
+    type: ClusterIP
+  extraArgs:
+    - --insecure
+  resources:
+    requests: { cpu: 25m, memory: 64Mi }
+    limits:   { memory: 128Mi }
+
+configs:
+  params:
+    server.insecure: true
+
+applicationSet:
+  enabled: true
+notifications:
+  enabled: false
+dex:
+  enabled: false
+
+controller:
+  resources:
+    requests: { cpu: 50m, memory: 256Mi }
+    limits:   { memory: 512Mi }
+repoServer:
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits:   { memory: 256Mi }

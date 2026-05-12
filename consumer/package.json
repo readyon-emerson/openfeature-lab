@@ -1,0 +1,10 @@
+{
+  "name": "feature-flags-consumer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@openfeature/server-sdk": "^1.15.0",
+    "@openfeature/flagd-provider": "^0.13.0"
+  }
+}

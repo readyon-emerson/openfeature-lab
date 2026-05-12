@@ -1,0 +1,27 @@
+# App-of-Apps: bootstraps the ArgoCD-managed view of the lab. Applied once
+# by scripts/up.sh after Gitea is seeded. It points at this same `argo/`
+# directory inside the Gitea repo, so any Application or ApplicationSet you
+# add here gets reconciled automatically.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lab-root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: http://gitea-http.gitea.svc.cluster.local:3000/lab/lab-manifests.git
+    targetRevision: main
+    path: argo
+    directory:
+      recurse: true
+      include: "{root.yaml,tenants-appset.yaml,*.yaml}"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

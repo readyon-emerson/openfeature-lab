@@ -1,0 +1,24 @@
+tenant: tenant-a
+
+featureFlag:
+  flags:
+    new-checkout-flow:
+      state: ENABLED
+      variants:
+        'on': true
+        'off': false
+      defaultVariant: 'on'
+
+    experiment-banner:
+      state: ENABLED
+      variants:
+        control: "default banner"
+        treatment: "tenant-a winning treatment"
+      defaultVariant: control
+      targeting:
+        if:
+          - "==":
+              - var: userId
+              - "user-1"
+          - treatment
+          - control

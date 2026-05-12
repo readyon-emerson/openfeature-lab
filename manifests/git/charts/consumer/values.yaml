@@ -1,0 +1,20 @@
+# Tiny demo consumer for the lab. Logs flag evaluations every 5s.
+# Per-tenant overrides live in tenants/<tenant>/consumer.yaml.
+
+# Required. Used as the TENANT env var.
+tenant: ""
+
+# Required. Full DNS to the tenant's flagd Service (set in per-tenant values).
+flagdHost: ""
+flagdPort: 8013
+
+image:
+  repository: feature-flags-consumer
+  tag: dev
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+resources:
+  requests: { cpu: 25m, memory: 64Mi }
+  limits:   { memory: 128Mi }

@@ -1,0 +1,33 @@
+{{- if not .Values.tenant }}{{ fail ".Values.tenant is required" }}{{- end }}
+{{- if not .Values.flagdHost }}{{ fail ".Values.flagdHost is required" }}{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+  labels:
+    app: consumer
+    app.kubernetes.io/name: consumer
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+        - name: consumer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: FLAGD_HOST
+              value: {{ .Values.flagdHost | quote }}
+            - name: FLAGD_PORT
+              value: {{ .Values.flagdPort | quote }}
+            - name: TENANT
+              value: {{ .Values.tenant | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

@@ -1,0 +1,8 @@
+apiVersion: core.openfeature.dev/v1beta1
+kind: Flagd
+metadata:
+  name: flagd
+spec:
+  featureFlagSource: {{ .Values.tenant }}-source
+  replicas: {{ .Values.flagd.replicas }}
+  serviceType: {{ .Values.flagd.serviceType }}

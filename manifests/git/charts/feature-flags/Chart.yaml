@@ -1,0 +1,6 @@
+apiVersion: v2
+name: feature-flags
+description: Per-tenant feature-flags stack - FeatureFlag + FeatureFlagSource + Flagd CRs reconciled by the OpenFeature Operator
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

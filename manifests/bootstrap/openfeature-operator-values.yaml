@@ -1,0 +1,15 @@
+# Minimal OpenFeature Operator install for the lab. Provides FeatureFlag,
+# FeatureFlagSource, and Flagd CRDs. We don't annotate consumer pods, so the
+# operator's sidecar-injection mutating webhook stays inert; flagd runs as a
+# Deployment reconciled by the operator from the Flagd CR in each tenant ns.
+
+# Let helm --create-namespace own ns creation. The chart's own Namespace
+# template otherwise conflicts on cold install.
+namespace:
+  create: false
+
+controllerManager:
+  manager:
+    resources:
+      requests: { cpu: 25m, memory: 64Mi }
+      limits:   { memory: 128Mi }

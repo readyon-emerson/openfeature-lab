@@ -1,0 +1,2 @@
+tenant: tenant-a
+flagdHost: flagd.tenant-a.svc.cluster.local

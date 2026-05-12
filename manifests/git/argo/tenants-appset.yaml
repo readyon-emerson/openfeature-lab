@@ -1,0 +1,47 @@
+# ApplicationSet: matrix of tenants x charts. Stamps one Application per
+# (tenant, chart) pair so each tenant ends up with two Applications:
+#   lab-tenant-a-feature-flags  (flagd + FeatureFlag CR)
+#   lab-tenant-a-consumer       (Node.js demo)
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: lab-tenants
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - tenant: tenant-a
+                - tenant: tenant-b
+          - list:
+              elements:
+                - chart: feature-flags
+                - chart: consumer
+
+  template:
+    metadata:
+      name: 'lab-{{.tenant}}-{{.chart}}'
+    spec:
+      project: default
+      source:
+        repoURL: http://gitea-http.gitea.svc.cluster.local:3000/lab/lab-manifests.git
+        targetRevision: main
+        path: 'charts/{{.chart}}'
+        helm:
+          valueFiles:
+            - '../../tenants/{{.tenant}}/{{.chart}}.yaml'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{.tenant}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

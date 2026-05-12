@@ -1,0 +1,17 @@
+# Per-tenant feature-flags chart. Renders FeatureFlag + FeatureFlagSource +
+# Flagd CRs; the OpenFeature Operator reconciles those into a flagd
+# Deployment + Service in the tenant namespace.
+#
+# Per-tenant overrides live in tenants/<tenant>/feature-flags.yaml.
+
+# Required. Set in the per-tenant values file.
+tenant: ""
+
+# FeatureFlag CR content. Rendered into a CR named <tenant>-flags.
+featureFlag:
+  flags: {}
+
+# flagd runtime, reconciled from the Flagd CR by the operator.
+flagd:
+  replicas: 2
+  serviceType: ClusterIP
