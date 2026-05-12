@@ -67,7 +67,7 @@ helm repo add argo https://argoproj.github.io/argo-helm >/dev/null 2>&1 || true
 helm repo update argo >/dev/null
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 helm upgrade --install argocd argo/argo-cd \
-  --namespace argocd --version 7.7.0 \
+  --namespace argocd --version 9.5.13 \
   --values /lab/manifests/bootstrap/argocd-values.yaml \
   --set "configs.secret.argocdServerAdminPassword=${ARGOCD_ADMIN_HASH}" \
   --set "configs.secret.argocdServerAdminPasswordMtime=2026-01-01T00:00:00Z" \
@@ -78,8 +78,8 @@ helm repo add jetstack https://charts.jetstack.io >/dev/null 2>&1 || true
 helm repo update jetstack >/dev/null
 helm upgrade --install cert-manager jetstack/cert-manager \
   --namespace cert-manager --create-namespace \
-  --version v1.16.1 \
-  --set installCRDs=true \
+  --version v1.20.2 \
+  --set crds.enabled=true \
   --wait --timeout 5m
 
 echo "==> installing OpenFeature Operator (FeatureFlag + FeatureFlagSource CRDs)"

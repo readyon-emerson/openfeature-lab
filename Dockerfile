@@ -4,11 +4,11 @@
 # docker socket.
 FROM debian:bookworm-slim
 
-ARG KIND_VERSION=0.27.0
-ARG KUBECTL_VERSION=1.33.0
-ARG HELM_VERSION=v3.16.2
-ARG ARGOCD_VERSION=v2.13.0
-ARG DOCKER_CLI_VERSION=27.3.1
+ARG KIND_VERSION=0.31.0
+ARG KUBECTL_VERSION=1.36.1
+ARG HELM_VERSION=v3.20.2
+ARG ARGOCD_VERSION=v3.4.2
+ARG DOCKER_CLI_VERSION=29.4.3
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates curl tar jq bash git python3 apache2-utils \
