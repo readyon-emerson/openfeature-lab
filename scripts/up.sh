@@ -38,6 +38,8 @@ echo "    done"
 if [ "${SKIP_BUILD:-0}" != "1" ]; then
   echo "==> building consumer image from /lab/consumer"
   docker build -q -t feature-flags-consumer:dev /lab/consumer >/dev/null
+  echo "==> building loader image from /lab/loader"
+  docker build -q -t feature-flags-loader:dev /lab/loader >/dev/null
 fi
 
 if ! kind get clusters 2>/dev/null | grep -qx "${CLUSTER}"; then
@@ -56,7 +58,7 @@ chmod 600 /out/kubeconfig
 echo "==> kubeconfig written to ./out/kubeconfig"
 
 echo "==> loading images into kind (via tar archive)"
-for img in feature-flags-consumer:dev "${FLAGD_IMAGE}"; do
+for img in feature-flags-consumer:dev feature-flags-loader:dev "${FLAGD_IMAGE}"; do
   echo "    ${img}"
   load_image_to_kind "${img}"
 done

@@ -34,15 +34,21 @@ manifests/git/                     mirror of what lives in Gitea
 │   │       ├── featureflag.yaml
 │   │       ├── featureflagsource.yaml
 │   │       └── flagd.yaml         OpenFeature Operator reconciles into a Deployment+Service
-│   └── consumer/                  Node.js demo using OpenFeature SDK
+│   ├── consumer/                  Node.js demo using OpenFeature SDK
+│   │   ├── Chart.yaml
+│   │   ├── values.yaml
+│   │   └── templates/
+│   │       └── deployment.yaml
+│   └── loader/                    Node.js load generator (idle by default)
 │       ├── Chart.yaml
 │       ├── values.yaml
 │       └── templates/
 │           └── deployment.yaml
 └── tenants/
     ├── tenant-a/
-    │   ├── feature-flags.yaml     flag content + flagd source URI
-    │   └── consumer.yaml          flagd Service DNS for the consumer to dial
+    │   ├── feature-flags.yaml     flag content
+    │   ├── consumer.yaml          flagd Service DNS for the consumer to dial
+    │   └── loader.yaml            flagd Service DNS for the loader to dial
     └── tenant-b/                  same shape, different flag content
 ```
 
@@ -56,6 +62,21 @@ Cluster-wide install (handled by `up.sh`, not via Gitea):
 | Gitea | self-contained GitOps source |
 | cert-manager | required by the OpenFeature Operator chart (webhook serving cert) |
 | OpenFeature Operator | provides `FeatureFlag` + `FeatureFlagSource` CRDs |
+
+## Stress test
+
+Each tenant gets a `loader` Deployment alongside its consumer. Idle by default (replicas: 0). Scale up to start hammering flagd:
+
+```bash
+./run.sh stress start tenant-a 1    # scale tenant-a loader to 1 replica
+./run.sh stress status              # show loader replica counts
+./run.sh logs tenant-a loader       # tail throughput (rate, p50, p99)
+./run.sh stress stop                # scale all loaders to 0
+```
+
+Each loader pod runs `WORKERS` (default 50) concurrent async eval loops against the in-namespace flagd via OpenFeature SDK + flagd provider. The provider runs in in-process mode by default: it gRPC-syncs the flag state once from flagd, then evaluates locally. So per-eval cost is a local lookup (sub-millisecond p99 in this lab), not a network hop. That's the realistic production hot path; flagd's RPC eval API is only exercised on the initial sync and on flag-content changes.
+
+ArgoCD treats `spec/replicas` on Deployments as user-managed (via `ignoreDifferences` in the ApplicationSet), so `kubectl scale` (and the `stress start` helper) won't be reverted by selfHeal.
 
 ## Iteration loop
 
@@ -80,7 +101,8 @@ vim consumer/index.js
 | `up` | bring up cluster + install everything + start port-forwards |
 | `down` | stop port-forwards, destroy cluster |
 | `sync` | push current `manifests/git/` to Gitea |
-| `logs [tenant]` | tail consumer logs (default `tenant-a`) |
+| `logs [tenant] [app]` | tail logs (defaults: `tenant-a`, `consumer`) |
+| `stress {start\|stop\|status} [tenant] [replicas]` | scale the loader Deployment(s) up/down |
 | `forward {start\|stop\|status}` | manage host port-forwards |
 | `shell` | drop into a bash inside the orchestrator |
 
@@ -110,6 +132,10 @@ vim consumer/index.js
 │       ├── charts/
 │       └── tenants/
 ├── consumer/                  Node.js OpenFeature SDK consumer source
+│   ├── Dockerfile
+│   ├── package.json
+│   └── index.js
+├── loader/                    Node.js OpenFeature SDK load generator source
 │   ├── Dockerfile
 │   ├── package.json
 │   └── index.js

@@ -1,7 +1,8 @@
 # ApplicationSet: matrix of tenants x charts. Stamps one Application per
-# (tenant, chart) pair so each tenant ends up with two Applications:
-#   lab-tenant-a-feature-flags  (flagd + FeatureFlag CR)
-#   lab-tenant-a-consumer       (Node.js demo)
+# (tenant, chart) pair so each tenant ends up with three Applications:
+#   lab-tenant-a-feature-flags  (FeatureFlag + FeatureFlagSource + Flagd CRs)
+#   lab-tenant-a-consumer       (Node.js demo, evaluates flags on a loop)
+#   lab-tenant-a-loader         (Node.js load generator, idle by default)
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
@@ -22,12 +23,21 @@ spec:
               elements:
                 - chart: feature-flags
                 - chart: consumer
+                - chart: loader
 
   template:
     metadata:
       name: 'lab-{{.tenant}}-{{.chart}}'
     spec:
       project: default
+      # Deployment replicas treated as user-managed. Matters for the loader
+      # (./run.sh stress start/stop scales via kubectl); feature-flags has no
+      # Deployment in its templates, and consumer.replicas is static at 1.
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/replicas
       source:
         repoURL: http://gitea-http.gitea.svc.cluster.local:3000/lab/lab-manifests.git
         targetRevision: main

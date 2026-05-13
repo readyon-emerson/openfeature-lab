@@ -160,7 +160,10 @@ UIs (already forwarded):
 Iterate:
   ./run.sh sync                          # push manifests/ to Gitea; ArgoCD reconciles
   ./run.sh logs                          # tail tenant-a consumer logs
-  ./run.sh logs tenant-b                 # tail tenant-b consumer logs
+  ./run.sh logs tenant-b loader          # tail tenant-b loader logs
+  ./run.sh stress start tenant-a 1       # scale tenant-a loader to 1 replica
+  ./run.sh stress status                 # show loader replica counts
+  ./run.sh stress stop                   # scale all loaders to 0
   ./run.sh down                          # tear everything down
 
 Forwards:
@@ -178,8 +181,34 @@ EOF
     ;;
   logs)
     tenant="${1:-tenant-a}"
+    app="${2:-consumer}"
     exec kubectl --kubeconfig "${KUBECONFIG_FILE}" -n "${tenant}" \
-      logs -l app=consumer --tail=200 -f
+      logs -l "app=${app}" --tail=200 -f
+    ;;
+  stress)
+    sub="${1:-status}"
+    tenant="${2:-tenant-a}"
+    replicas="${3:-1}"
+    case "$sub" in
+      start)
+        kubectl --kubeconfig "${KUBECONFIG_FILE}" -n "${tenant}" \
+          scale deploy/loader --replicas="${replicas}"
+        echo "    ${tenant}/loader scaled to ${replicas}. Tail with: ./run.sh logs ${tenant} loader"
+        ;;
+      stop)
+        for ns in tenant-a tenant-b; do
+          kubectl --kubeconfig "${KUBECONFIG_FILE}" -n "${ns}" \
+            scale deploy/loader --replicas=0 >/dev/null 2>&1 && echo "    ${ns}/loader -> 0" || echo "    ${ns}/loader missing"
+        done
+        ;;
+      status)
+        for ns in tenant-a tenant-b; do
+          rep=$(kubectl --kubeconfig "${KUBECONFIG_FILE}" -n "${ns}" get deploy/loader -o jsonpath='{.spec.replicas}/{.status.readyReplicas}' 2>/dev/null || echo "missing")
+          echo "    ${ns}/loader: replicas (spec/ready) = ${rep}"
+        done
+        ;;
+      *) echo "Usage: ./run.sh stress {start|stop|status} [tenant] [replicas]" >&2; exit 1 ;;
+    esac
     ;;
   forward)
     sub="${1:-start}"
@@ -194,7 +223,7 @@ EOF
     run_in_orchestrator
     ;;
   *)
-    echo "Usage: ./run.sh {up|down|sync|logs [tenant]|forward|shell}" >&2
+    echo "Usage: ./run.sh {up|down|sync|logs [tenant] [app]|stress {start|stop|status} [tenant] [replicas]|forward|shell}" >&2
     exit 1
     ;;
 esac

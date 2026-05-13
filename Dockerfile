@@ -47,6 +47,7 @@ COPY scripts/   /lab/scripts/
 COPY manifests/ /lab/manifests/
 COPY kind/      /lab/kind/
 COPY consumer/  /lab/consumer/
+COPY loader/    /lab/loader/
 RUN chmod +x /lab/scripts/*.sh
 
 ENTRYPOINT ["/bin/bash"]

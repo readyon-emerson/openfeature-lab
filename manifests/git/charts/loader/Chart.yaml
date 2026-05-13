@@ -1,0 +1,6 @@
+apiVersion: v2
+name: loader
+description: Tiny Node.js load generator firing high-volume flag evaluations through OpenFeature SDK + flagd provider
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

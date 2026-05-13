@@ -1,0 +1,10 @@
+{
+  "name": "feature-flags-loader",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@openfeature/server-sdk": "^1.21.0",
+    "@openfeature/flagd-provider": "^0.15.1"
+  }
+}

@@ -1,0 +1,37 @@
+{{- if not .Values.tenant }}{{ fail ".Values.tenant is required" }}{{- end }}
+{{- if not .Values.flagdHost }}{{ fail ".Values.flagdHost is required" }}{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loader
+  labels:
+    app: loader
+    app.kubernetes.io/name: loader
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: loader
+  template:
+    metadata:
+      labels:
+        app: loader
+    spec:
+      containers:
+        - name: loader
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: FLAGD_HOST
+              value: {{ .Values.flagdHost | quote }}
+            - name: FLAGD_PORT
+              value: {{ .Values.flagdPort | quote }}
+            - name: TENANT
+              value: {{ .Values.tenant | quote }}
+            - name: WORKERS
+              value: {{ .Values.workers | quote }}
+            - name: REPORT_INTERVAL_MS
+              value: {{ .Values.reportIntervalMs | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

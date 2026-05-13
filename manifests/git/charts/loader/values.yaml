@@ -1,0 +1,25 @@
+# Load generator. Idle by default (replicaCount: 0) so it costs nothing
+# until you opt into stress testing. Scale up to start hammering flagd:
+#   kubectl -n tenant-a scale deploy/loader --replicas=1
+#
+# Per-tenant overrides live in tenants/<tenant>/loader.yaml.
+
+# Required.
+tenant: ""
+flagdHost: ""
+flagdPort: 8013
+
+# Off by default. Bump to start stress; each replica spawns `workers`
+# concurrent async eval loops, no pacing, no backpressure.
+replicaCount: 0
+workers: 50
+reportIntervalMs: 5000
+
+image:
+  repository: feature-flags-loader
+  tag: dev
+  pullPolicy: IfNotPresent
+
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits:   { cpu: 1000m, memory: 256Mi }
