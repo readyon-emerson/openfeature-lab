@@ -15,6 +15,22 @@ replicaCount: 0
 workers: 50
 reportIntervalMs: 5000
 
+# OpenFeature flagd-provider resolver mode.
+#   rpc          - per-call gRPC to flagd
+#   in-process   - sync flag state once via gRPC, evaluate locally
+resolverType: rpc
+
+# Client-side cache for RPC mode.
+#   lru          - cache eval results (default; flagd barely touched under load)
+#   disabled     - every eval hits flagd over the wire (use this to stress flagd)
+cache: lru
+
+# If > 0, each worker picks from N synthetic flag keys (`bulk-flag-{0..N-1}`)
+# uniformly. Use to defeat per-flag-key caching and spread eval over a realistic
+# flag spec size. Requires the FeatureFlag CR to have at least that many flags
+# (see `feature-flags` chart's featureFlag.generateCount).
+flagCount: 0
+
 image:
   repository: feature-flags-loader
   tag: dev

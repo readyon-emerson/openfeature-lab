@@ -1,2 +1,9 @@
 tenant: tenant-b
 flagdHost: flagd.tenant-b.svc.cluster.local
+
+# RPC + cache disabled: every call is a fresh gRPC roundtrip to flagd.
+# Stresses flagd's eval path; the realistic "what if I don't trust caching"
+# extreme. Loader CPU is network-bound.
+resolverType: rpc
+cache: disabled
+flagCount: 500

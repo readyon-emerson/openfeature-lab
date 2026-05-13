@@ -219,11 +219,18 @@ EOF
       *) echo "Usage: ./run.sh forward {start|stop|status}" >&2; exit 1 ;;
     esac
     ;;
+  top)
+    exec kubectl --kubeconfig "${KUBECONFIG_FILE}" top pods -n tenant-a -n tenant-b --containers 2>/dev/null || \
+      kubectl --kubeconfig "${KUBECONFIG_FILE}" top pods --all-namespaces | grep -E "NAMESPACE|tenant-"
+    ;;
+  hpa)
+    exec kubectl --kubeconfig "${KUBECONFIG_FILE}" get hpa -A -w
+    ;;
   shell)
     run_in_orchestrator
     ;;
   *)
-    echo "Usage: ./run.sh {up|down|sync|logs [tenant] [app]|stress {start|stop|status} [tenant] [replicas]|forward|shell}" >&2
+    echo "Usage: ./run.sh {up|down|sync|logs [tenant] [app]|stress {start|stop|status} [tenant] [replicas]|top|hpa|forward|shell}" >&2
     exit 1
     ;;
 esac

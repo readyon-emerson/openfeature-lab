@@ -4,5 +4,7 @@ metadata:
   name: flagd
 spec:
   featureFlagSource: {{ .Values.tenant }}-source
+  {{- if not .Values.hpa.enabled }}
   replicas: {{ .Values.flagd.replicas }}
+  {{- end }}
   serviceType: {{ .Values.flagd.serviceType }}

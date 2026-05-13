@@ -8,4 +8,12 @@ metadata:
 spec:
   flagSpec:
     flags:
-      {{- toYaml .Values.featureFlag.flags | nindent 6 }}
+{{- toYaml .Values.featureFlag.flags | nindent 6 }}
+{{- range $i, $_ := until (int .Values.featureFlag.generateCount) }}
+      bulk-flag-{{ $i }}:
+        state: ENABLED
+        variants:
+          'on': true
+          'off': false
+        defaultVariant: 'off'
+{{- end }}

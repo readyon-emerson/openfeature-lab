@@ -33,5 +33,11 @@ spec:
               value: {{ .Values.workers | quote }}
             - name: REPORT_INTERVAL_MS
               value: {{ .Values.reportIntervalMs | quote }}
+            - name: RESOLVER_TYPE
+              value: {{ .Values.resolverType | quote }}
+            - name: CACHE
+              value: {{ .Values.cache | quote }}
+            - name: FLAG_COUNT
+              value: {{ .Values.flagCount | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

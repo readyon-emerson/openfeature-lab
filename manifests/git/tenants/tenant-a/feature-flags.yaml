@@ -1,13 +1,16 @@
 tenant: tenant-a
 
 featureFlag:
+  # Synthetic flags for sizing/stress: bulk-flag-0 .. bulk-flag-499.
+  generateCount: 500
+
   flags:
     new-checkout-flow:
       state: ENABLED
       variants:
         'on': true
         'off': false
-      defaultVariant: 'on'
+      defaultVariant: 'off'
 
     experiment-banner:
       state: ENABLED

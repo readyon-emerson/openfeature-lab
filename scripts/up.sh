@@ -75,6 +75,14 @@ helm upgrade --install argocd argo/argo-cd \
   --set "configs.secret.argocdServerAdminPasswordMtime=2026-01-01T00:00:00Z" \
   --wait --timeout 5m
 
+echo "==> installing metrics-server (kubelet TLS skipped: kind's kubelet certs aren't signed by the metrics-server-trusted CA)"
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server >/dev/null 2>&1 || true
+helm repo update metrics-server >/dev/null
+helm upgrade --install metrics-server metrics-server/metrics-server \
+  --namespace kube-system \
+  --set 'args={--kubelet-insecure-tls,--kubelet-preferred-address-types=InternalIP\,ExternalIP\,Hostname}' \
+  --wait --timeout 3m
+
 echo "==> installing cert-manager (OpenFeature Operator chart unconditionally renders cert-manager Certificate + Issuer for its webhook serving cert)"
 helm repo add jetstack https://charts.jetstack.io >/dev/null 2>&1 || true
 helm repo update jetstack >/dev/null

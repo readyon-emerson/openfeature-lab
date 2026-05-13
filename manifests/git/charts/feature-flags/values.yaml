@@ -8,10 +8,23 @@
 tenant: ""
 
 # FeatureFlag CR content. Rendered into a CR named <tenant>-flags.
+# `flags` is the explicit map; `generateCount` adds N synthetic boolean
+# flags (bulk-flag-0 .. bulk-flag-N-1) for sizing the spec and stressing
+# the SDK's per-flag eval/storage paths.
 featureFlag:
   flags: {}
+  generateCount: 0
 
 # flagd runtime, reconciled from the Flagd CR by the operator.
+# `replicas` is left unset when hpa.enabled is true, so the operator
+# doesn't fight the HPA's scaling decisions.
 flagd:
   replicas: 2
   serviceType: ClusterIP
+
+# HPA targeting the flagd Deployment created by the operator.
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 60

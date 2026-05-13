@@ -1,6 +1,8 @@
 tenant: tenant-b
 
 featureFlag:
+  generateCount: 500
+
   flags:
     new-checkout-flow:
       state: ENABLED

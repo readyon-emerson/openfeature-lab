@@ -1,2 +1,9 @@
 tenant: tenant-a
 flagdHost: flagd.tenant-a.svc.cluster.local
+flagdPort: 8015                    # flagd's sync service port (in-process mode)
+
+# In-process mode: SDK opens a gRPC sync stream once, receives the full
+# 500-flag spec from flagd, evaluates locally per call. Flagd CPU stays
+# near zero regardless of rate; loader CPU does the JSONLogic work.
+resolverType: in-process
+flagCount: 500
